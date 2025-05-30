@@ -6,12 +6,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=52mjum6t9r&callback=initMap"></script>
     <style>
-        body { margin:0; padding:0; overflow:hidden; } /* Keep body styles here for consistency */
+        body { margin:0; padding:0; overflow:hidden; }
 
         #map {
             width: 100%;
             height: 100vh;
         }
+
         #locationBtn, #closeBtn {
             position: absolute;
             width: 30px;
@@ -38,16 +39,15 @@
             left: 50px;
         }
 
-        /* Updated styles for the location button icon */
         #locationBtn::before {
             content: '';
             display: block;
-            width: 100%; /* Take full width of the button */
-            height: 100%; /* Take full height of the button */
-            border-radius: 50%; /* Make it a circle */
-            border: 1px solid red; /* Changed outer circle border to RED */
-            box-sizing: border-box; /* Include padding and border in the element's total width and height */
-            position: absolute; /* Position relative to the button itself */
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 1px solid red;
+            box-sizing: border-box;
+            position: absolute;
             top: 0;
             left: 0;
         }
@@ -56,30 +56,26 @@
             content: '';
             display: block;
             position: absolute;
-            width: 6px; /* Increased size of the inner dot to 6px */
-            height: 6px; /* Increased size of the inner dot to 6px */
-            background-color: red; /* Changed color of the inner dot to RED */
-            border-radius: 50%; /* Make it a dot */
+            width: 6px;
+            height: 6px;
+            background-color: red;
+            border-radius: 50%;
             top: 50%;
             left: 50%;
-            transform: translate(-50%, -50%); /* Center the dot */
-            
-            /* Box-shadow for crosshairs, changed color to RED */
-            box-shadow: 
-                0 -10px 0 -8px red, /* Top line */
-                0 10px 0 -8px red,  /* Bottom line */
-                -10px 0 0 -8px red, /* Left line */
-                10px 0 0 -8px red;  /* Right line */
+            transform: translate(-50%, -50%);
+            box-shadow:
+                0 -10px 0 -8px red,
+                0 10px 0 -8px red,
+                -10px 0 0 -8px red,
+                10px 0 0 -8px red;
         }
 
-
         #closeBtn::before {
-            content: '×'; /* Close symbol */
+            content: '×';
             font-size: 18px;
             color: black;
         }
 
-        /* NEW STYLE FOR THE DEBUG INFO */
         #debugInfo {
             position: absolute;
             top: 10px;
@@ -91,8 +87,8 @@
             font-family: monospace;
             font-size: 14px;
             color: #333;
-            max-width: 200px; /* Limit width for readability */
-            word-wrap: break-word; /* Ensure text wraps */
+            max-width: 200px;
+            word-wrap: break-word;
         }
     </style>
 </head>
@@ -101,14 +97,11 @@
     <div id="map"></div>
     <button id="locationBtn" title="My Location"></button>
     <button id="closeBtn" title="Close WebView"></button>
-
-    <div id="debugInfo">
-        Waiting for location...
-    </div>
+    <div id="debugInfo">Waiting for location...</div>
 
     <script>
         let map;
-        let debugInfoDiv; // Reference to our new debug div
+        let debugInfoDiv;
 
         function initMap() {
             map = new naver.maps.Map('map', {
@@ -116,7 +109,7 @@
                 zoom: 15
             });
 
-            debugInfoDiv = document.getElementById('debugInfo'); // Get reference to the div
+            debugInfoDiv = document.getElementById('debugInfo');
 
             if (window.Unity && typeof window.Unity.call === 'function') {
                 window.Unity.call("MapReady");
@@ -126,7 +119,6 @@
             }
         }
 
-        // Request location from Unity when button clicked
         document.getElementById("locationBtn").addEventListener("click", function () {
             if (window.Unity && typeof window.Unity.call === 'function') {
                 Unity.call('getUserLocation');
@@ -136,7 +128,6 @@
             }
         });
 
-        // Close WebView
         document.getElementById("closeBtn").addEventListener("click", function () {
             if (window.Unity && typeof window.Unity.call === 'function') {
                 Unity.call('closeWebView');
@@ -146,9 +137,8 @@
             }
         });
 
-        // Unity will call this with the coordinates
         function setUserLocation(lat, lng) {
-            console.log("setUserLocation called with:", lat, lng); // Also good for browser dev tools
+            console.log("setUserLocation called with:", lat, lng);
             const userLocation = new naver.maps.LatLng(lat, lng);
             map.setCenter(userLocation);
             new naver.maps.Marker({
@@ -157,9 +147,30 @@
                 title: "You are here!"
             });
 
-            // Update the debug info div
             if (debugInfoDiv) {
                 debugInfoDiv.innerText = `Location received:\nLat: ${lat.toFixed(6)}\nLng: ${lng.toFixed(6)}`;
+            }
+        }
+
+        function setAnchorLocation(lat, lng, url) {
+            console.log("setAnchorLocation called with:", lat, lng, url);
+
+            const anchorLocation = new naver.maps.LatLng(lat, lng);
+
+            new naver.maps.Marker({
+                position: anchorLocation,
+                map: map,
+                icon: {
+                    url: url,
+                    size: new naver.maps.Size(50, 50),
+                    origin: new naver.maps.Point(0, 0),
+                    anchor: new naver.maps.Point(25, 25)
+                },
+                title: "Anchor Marker"
+            });
+
+            if (debugInfoDiv) {
+                debugInfoDiv.innerText = `Anchor Location:\nLat: ${lat.toFixed(6)}\nLng: ${lng.toFixed(6)}\nIcon: ${url}`;
             }
         }
     </script>
