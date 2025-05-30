@@ -111,6 +111,8 @@
 
             debugInfoDiv = document.getElementById('debugInfo');
 
+            setAnchorLocation(37.5665, 126.9780); // Set default anchor
+
             if (window.Unity && typeof window.Unity.call === 'function') {
                 window.Unity.call("MapReady");
                 debugInfoDiv.innerText = "Map Ready, Unity called MapReady.";
@@ -152,42 +154,44 @@
             }
         }
 
-function setAnchorLocation(lat, lng, url) {
-    console.log("setAnchorLocation called with:", lat, lng, url);
+        function setAnchorLocation(lat, lng) {
+            console.log("setAnchorLocation called with:", lat, lng);
 
-    const anchorLocation = new naver.maps.LatLng(lat, lng);
+            const anchorLocation = new naver.maps.LatLng(lat, lng);
 
-    const marker = new naver.maps.Marker({
-        position: anchorLocation,
-        map: map,
-        icon: {
-            url: url,
-            scaledSize: new naver.maps.Size(50, 50), // Corrected key
-            origin: new naver.maps.Point(0, 0),
-            anchor: new naver.maps.Point(25, 25)
-        },
-        title: "Anchor Marker"
-    });
+            const circleOverlay = new naver.maps.CustomOverlay({
+                position: anchorLocation,
+                content: `<div style="
+                    width: 20px;
+                    height: 20px;
+                    background-color: red;
+                    border-radius: 50%;
+                    border: 2px solid white;
+                    box-shadow: 0 0 5px rgba(0,0,0,0.3);
+                    "></div>`,
+                zIndex: 100,
+                map: map
+            });
 
-    const infowindow = new naver.maps.InfoWindow({
-        content: '<div style="padding:5px; font-size:14px;">Anchor Position</div>',
-        pixelOffset: new naver.maps.Point(0, -5)
-    });
+            const infowindow = new naver.maps.InfoWindow({
+                content: '<div style="padding:5px; font-size:14px;">Anchor Position</div>',
+                pixelOffset: new naver.maps.Point(0, -25)
+            });
 
-    naver.maps.Event.addListener(marker, "click", function () {
-        if (infowindow.getMap()) {
-            infowindow.close();
-        } else {
-            infowindow.open(map, marker);
+            naver.maps.Event.addListener(circleOverlay, "click", function () {
+                if (infowindow.getMap()) {
+                    infowindow.close();
+                } else {
+                    infowindow.open(map, anchorLocation);
+                }
+            });
+
+            infowindow.open(map, anchorLocation);
+
+            if (debugInfoDiv) {
+                debugInfoDiv.innerText = `Anchor Location:\nLat: ${lat.toFixed(6)}\nLng: ${lng.toFixed(6)}`;
+            }
         }
-    });
-
-    infowindow.open(map, marker);
-
-    if (debugInfoDiv) {
-        debugInfoDiv.innerText = `Anchor Location:\nLat: ${lat.toFixed(6)}\nLng: ${lng.toFixed(6)}\nIcon: ${url}`;
-    }
-}
     </script>
 </body>
 </html>
