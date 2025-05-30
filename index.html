@@ -74,37 +74,30 @@
             }
         }
 
+        // Request location from Unity when button clicked
         document.getElementById("locationBtn").addEventListener("click", function () {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(function (position) {
-                    const lat = position.coords.latitude;
-                    const lng = position.coords.longitude;
-
-                    const userLocation = new naver.maps.LatLng(lat, lng);
-                    map.setCenter(userLocation);
-                    new naver.maps.Marker({
-                        position: userLocation,
-                        map: map,
-                        title: "You are here!"
-                    });
-
-                    if (window.Unity && typeof window.Unity.call === 'function') {
-                        window.Unity.call(`Location:${lat},${lng}`);
-                    }
-
-                }, function (error) {
-                    alert("Failed to get location: " + error.message);
-                });
-            } else {
-                alert("Geolocation is not supported by this browser.");
+            if (window.Unity && typeof window.Unity.call === 'function') {
+                Unity.call('getUserLocation');
             }
         });
 
+        // Close WebView
         document.getElementById("closeBtn").addEventListener("click", function () {
             if (window.Unity && typeof window.Unity.call === 'function') {
                 Unity.call('closeWebView');
             }
         });
+
+        // Unity will call this with the coordinates
+        function setUserLocation(lat, lng) {
+            const userLocation = new naver.maps.LatLng(lat, lng);
+            map.setCenter(userLocation);
+            new naver.maps.Marker({
+                position: userLocation,
+                map: map,
+                title: "You are here!"
+            });
+        }
     </script>
 </body>
 </html>
