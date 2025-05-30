@@ -38,7 +38,7 @@
             left: 50px;
         }
 
-        /* Styles for the new location button icon */
+        /* Corrected styles for the new location button icon */
         #locationBtn::before {
             content: '';
             display: block;
@@ -47,7 +47,9 @@
             border-radius: 50%; /* Make it a circle */
             border: 1px solid #333; /* Outer circle border */
             box-sizing: border-box; /* Include padding and border in the element's total width and height */
-            position: relative; /* For positioning the inner dot and crosshairs */
+            position: absolute; /* Position relative to the button itself */
+            top: 0;
+            left: 0;
         }
 
         #locationBtn::after {
@@ -61,16 +63,24 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%); /* Center the dot */
-            box-shadow: 0 0 0 1px #333, /* Top crosshair */
-                        0 0 0 1px #333, /* Bottom crosshair */
-                        0 0 0 1px #333, /* Left crosshair */
-                        0 0 0 1px #333; /* Right crosshair */
-            /* Using multiple box-shadows to simulate the crosshairs */
-            /* Adjust offsets to create the lines from the center dot */
-            box-shadow: 0 -10px 0 -8px #333, /* Top line */
-                        0 10px 0 -8px #333,  /* Bottom line */
-                        -10px 0 0 -8px #333, /* Left line */
-                        10px 0 0 -8px #333;  /* Right line */
+            /* Using background for crosshairs within the same pseudo-element as the dot */
+            /* This is a common trick for simple shapes */
+            background: #333; /* Color of the center dot */
+            background-image: 
+                linear-gradient(to right, #333 1px, transparent 1px), /* Vertical line right of center */
+                linear-gradient(to left, #333 1px, transparent 1px),  /* Vertical line left of center */
+                linear-gradient(to bottom, #333 1px, transparent 1px), /* Horizontal line below center */
+                linear-gradient(to top, #333 1px, transparent 1px);   /* Horizontal line above center */
+            background-repeat: no-repeat;
+            background-size: 1px 100%, 1px 100%, 100% 1px, 100% 1px; /* width height for each line */
+            background-position: 50% 0, 50% 100%, 0 50%, 100% 50%; /* Position each line */
+
+            /* More direct approach for crosshairs with `box-shadow` if `linear-gradient` is too complex */
+            box-shadow: 
+                0 -10px 0 -8px #333, /* Top line */
+                0 10px 0 -8px #333,  /* Bottom line */
+                -10px 0 0 -8px #333, /* Left line */
+                10px 0 0 -8px #333;  /* Right line */
         }
 
 
