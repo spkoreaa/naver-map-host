@@ -152,27 +152,42 @@
             }
         }
 
-        function setAnchorLocation(lat, lng, url) {
-            console.log("setAnchorLocation called with:", lat, lng, url);
+function setAnchorLocation(lat, lng, url) {
+    console.log("setAnchorLocation called with:", lat, lng, url);
 
-            const anchorLocation = new naver.maps.LatLng(lat, lng);
+    const anchorLocation = new naver.maps.LatLng(lat, lng);
 
-            new naver.maps.Marker({
-                position: anchorLocation,
-                map: map,
-                icon: {
-                    url: url,
-                    size: new naver.maps.Size(50, 50),
-                    origin: new naver.maps.Point(0, 0),
-                    anchor: new naver.maps.Point(25, 25)
-                },
-                title: "Anchor Marker"
-            });
+    const marker = new naver.maps.Marker({
+        position: anchorLocation,
+        map: map,
+        icon: {
+            url: url,
+            scaledSize: new naver.maps.Size(50, 50), // Corrected key
+            origin: new naver.maps.Point(0, 0),
+            anchor: new naver.maps.Point(25, 25)
+        },
+        title: "Anchor Marker"
+    });
 
-            if (debugInfoDiv) {
-                debugInfoDiv.innerText = `Anchor Location:\nLat: ${lat.toFixed(6)}\nLng: ${lng.toFixed(6)}\nIcon: ${url}`;
-            }
+    const infowindow = new naver.maps.InfoWindow({
+        content: '<div style="padding:5px; font-size:14px;">Anchor Position</div>',
+        pixelOffset: new naver.maps.Point(0, -5)
+    });
+
+    naver.maps.Event.addListener(marker, "click", function () {
+        if (infowindow.getMap()) {
+            infowindow.close();
+        } else {
+            infowindow.open(map, marker);
         }
+    });
+
+    infowindow.open(map, marker);
+
+    if (debugInfoDiv) {
+        debugInfoDiv.innerText = `Anchor Location:\nLat: ${lat.toFixed(6)}\nLng: ${lng.toFixed(6)}\nIcon: ${url}`;
+    }
+}
     </script>
 </body>
 </html>
