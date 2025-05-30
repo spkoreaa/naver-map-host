@@ -38,16 +38,41 @@
             left: 50px;
         }
 
+        /* Styles for the new location button icon */
         #locationBtn::before {
             content: '';
             display: block;
-            width: 20px;
-            height: 20px;
-            background-image: url('https://navermaps.github.io/maps.js.ncp/docs/img/example/location.png');
-            background-size: contain;
-            background-repeat: no-repeat;
-            background-position: center;
+            width: 100%; /* Take full width of the button */
+            height: 100%; /* Take full height of the button */
+            border-radius: 50%; /* Make it a circle */
+            border: 1px solid #333; /* Outer circle border */
+            box-sizing: border-box; /* Include padding and border in the element's total width and height */
+            position: relative; /* For positioning the inner dot and crosshairs */
         }
+
+        #locationBtn::after {
+            content: '';
+            display: block;
+            position: absolute;
+            width: 4px; /* Size of the inner dot */
+            height: 4px; /* Size of the inner dot */
+            background-color: #333; /* Color of the inner dot */
+            border-radius: 50%; /* Make it a dot */
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%); /* Center the dot */
+            box-shadow: 0 0 0 1px #333, /* Top crosshair */
+                        0 0 0 1px #333, /* Bottom crosshair */
+                        0 0 0 1px #333, /* Left crosshair */
+                        0 0 0 1px #333; /* Right crosshair */
+            /* Using multiple box-shadows to simulate the crosshairs */
+            /* Adjust offsets to create the lines from the center dot */
+            box-shadow: 0 -10px 0 -8px #333, /* Top line */
+                        0 10px 0 -8px #333,  /* Bottom line */
+                        -10px 0 0 -8px #333, /* Left line */
+                        10px 0 0 -8px #333;  /* Right line */
+        }
+
 
         #closeBtn::before {
             content: '×'; /* Close symbol */
