@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Naver Map in Unity</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Replace YOUR_CLIENT_ID with your actual Naver Cloud Key ID -->
+    <script src="https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=52mjum6t9r&callback=initMap"></script>
+</head>
+<body style="margin:0;padding:0;overflow:hidden;">
+    <div id="map" style="width:100%;height:100vh;"></div>
+
+    <script>
+        function initMap() {
+            var map = new naver.maps.Map('map', {
+                center: new naver.maps.LatLng(37.3595704, 127.105399),
+                zoom: 10
+            });
+
+            // Call Unity when the map is ready
+            if (window.Unity && typeof window.Unity.call === 'function') {
+                window.Unity.call("MapReady");
+            }
+        }
+    </script>
+</body>
+</html>
