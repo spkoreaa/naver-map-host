@@ -111,7 +111,7 @@
 
             debugInfoDiv = document.getElementById('debugInfo');
 
-            setAnchorLocation(37.5665, 126.9780); // Set default anchor
+            setAnchorLocation(37.5665, 126.9780, "https://firebasestorage.googleapis.com/v0/b/ar-navigation-3dc71.firebasestorage.app/o/bangc.png?alt=media&token=46eb8756-e249-488c-97e1-104e008717c8"); // Set default anchor
 
             if (window.Unity && typeof window.Unity.call === 'function') {
                 window.Unity.call("MapReady");
@@ -154,27 +154,21 @@
             }
         }
 
-function setAnchorLocation(lat, lng) {
-    console.log("setAnchorLocation called with:", lat, lng);
+function setAnchorLocation(lat, lng, url) {
+    console.log("setAnchorLocation called with:", lat, lng, url);
 
     const anchorLocation = new naver.maps.LatLng(lat, lng);
 
-    // Red circular marker (replace with your image path if needed)
     const marker = new naver.maps.Marker({
         position: anchorLocation,
         map: map,
         icon: {
-            content: `<div style="
-                width: 20px;
-                height: 20px;
-                background-color: red;
-                border-radius: 50%;
-                border: 2px solid white;
-                box-shadow: 0 0 5px rgba(0,0,0,0.3);
-                "></div>`,
-            size: new naver.maps.Size(20, 20),
-            anchor: new naver.maps.Point(10, 10)
-        }
+            url: url,
+            scaledSize: new naver.maps.Size(50, 50),  // size of the icon
+            origin: new naver.maps.Point(0, 0),
+            anchor: new naver.maps.Point(25, 25)      // center the icon on the location
+        },
+        title: "Anchor Marker"
     });
 
     const infowindow = new naver.maps.InfoWindow({
@@ -193,10 +187,9 @@ function setAnchorLocation(lat, lng) {
     infowindow.open(map, marker);
 
     if (debugInfoDiv) {
-        debugInfoDiv.innerText = `Anchor Location:\nLat: ${lat.toFixed(6)}\nLng: ${lng.toFixed(6)}`;
+        debugInfoDiv.innerText = `Anchor Location:\nLat: ${lat.toFixed(6)}\nLng: ${lng.toFixed(6)}\nIcon: ${url}`;
     }
 }
-
     </script>
 </body>
 </html>
