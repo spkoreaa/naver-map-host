@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=52mjum6t9r&callback=initMap"></script>
     <style>
+        body { margin:0; padding:0; overflow:hidden; } /* Keep body styles here for consistency */
+
         #map {
             width: 100%;
             height: 100vh;
@@ -52,16 +54,37 @@
             font-size: 18px;
             color: black;
         }
+
+        /* NEW STYLE FOR THE DEBUG INFO */
+        #debugInfo {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 8px;
+            border-radius: 5px;
+            z-index: 1000;
+            font-family: monospace;
+            font-size: 14px;
+            color: #333;
+            max-width: 200px; /* Limit width for readability */
+            word-wrap: break-word; /* Ensure text wraps */
+        }
     </style>
 </head>
-<body style="margin:0;padding:0;overflow:hidden;">
+<body>
 
     <div id="map"></div>
     <button id="locationBtn" title="My Location"></button>
     <button id="closeBtn" title="Close WebView"></button>
 
+    <div id="debugInfo">
+        Waiting for location...
+    </div>
+
     <script>
         let map;
+        let debugInfoDiv; // Reference to our new debug div
 
         function initMap() {
             map = new naver.maps.Map('map', {
@@ -69,8 +92,13 @@
                 zoom: 15
             });
 
+            debugInfoDiv = document.getElementById('debugInfo'); // Get reference to the div
+
             if (window.Unity && typeof window.Unity.call === 'function') {
                 window.Unity.call("MapReady");
+                debugInfoDiv.innerText = "Map Ready, Unity called MapReady.";
+            } else {
+                debugInfoDiv.innerText = "Map Ready (not in Unity WebView).";
             }
         }
 
@@ -78,6 +106,9 @@
         document.getElementById("locationBtn").addEventListener("click", function () {
             if (window.Unity && typeof window.Unity.call === 'function') {
                 Unity.call('getUserLocation');
+                debugInfoDiv.innerText = "Requesting location from Unity...";
+            } else {
+                debugInfoDiv.innerText = "Cannot request location (not in Unity WebView).";
             }
         });
 
@@ -85,11 +116,15 @@
         document.getElementById("closeBtn").addEventListener("click", function () {
             if (window.Unity && typeof window.Unity.call === 'function') {
                 Unity.call('closeWebView');
+                debugInfoDiv.innerText = "Requested WebView close.";
+            } else {
+                debugInfoDiv.innerText = "Cannot close WebView (not in Unity WebView).";
             }
         });
 
         // Unity will call this with the coordinates
         function setUserLocation(lat, lng) {
+            console.log("setUserLocation called with:", lat, lng); // Also good for browser dev tools
             const userLocation = new naver.maps.LatLng(lat, lng);
             map.setCenter(userLocation);
             new naver.maps.Marker({
@@ -97,6 +132,11 @@
                 map: map,
                 title: "You are here!"
             });
+
+            // Update the debug info div
+            if (debugInfoDiv) {
+                debugInfoDiv.innerText = `Location received:\nLat: ${lat.toFixed(6)}\nLng: ${lng.toFixed(6)}`;
+            }
         }
     </script>
 </body>
