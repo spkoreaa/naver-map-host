@@ -1,89 +1,110 @@
 <!DOCTYPE html>
- <html>
- <head>
-     <meta charset="UTF-8">
-     <title>Naver Map in Unity</title>
-     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-     <script src="https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=52mjum6t9r&callback=initMap"></script>
-     <style>
-         #map {
-             width: 100%;
-             height: 100vh;
-         }
-         #locationBtn {
-             position: absolute;
-             top: 10px;
-             left: 10px;
-             width: 30px; /* Adjust size as needed */
-             height: 30px; /* Adjust size as needed */
-             padding: 0;
-             font-size: 0; /* Hide text */
-             background-color: white;
-             border: 1px solid #ccc;
-             border-radius: 50%; /* Make it circular */
-             z-index: 1000;
-             cursor: pointer;
-             display: flex;
-             justify-content: center;
-             align-items: center;
-         }
-         #locationBtn::before {
-             content: '';
-             display: block;
-             width: 20px; /* Adjust icon size as needed */
-             height: 20px; /* Adjust icon size as needed */
-             background-image: url('https://navermaps.github.io/maps.js.ncp/docs/img/example/location.png'); /* Using Naver's default location icon */
-             background-size: contain;
-             background-repeat: no-repeat;
-             background-position: center;
-         }
-     </style>
- </head>
- <body style="margin:0;padding:0;overflow:hidden;">
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Naver Map in Unity</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=52mjum6t9r&callback=initMap"></script>
+    <style>
+        #map {
+            width: 100%;
+            height: 100vh;
+        }
+        #locationBtn, #closeBtn {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            padding: 0;
+            font-size: 0;
+            background-color: white;
+            border: 1px solid #ccc;
+            border-radius: 50%;
+            z-index: 1000;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
 
-     <div id="map"></div>
-     <button id="locationBtn" title="My Location"></button>
+        #locationBtn {
+            top: 10px;
+            left: 10px;
+        }
 
-     <script>
-         let map;
+        #closeBtn {
+            top: 10px;
+            left: 50px;
+        }
 
-         function initMap() {
-             map = new naver.maps.Map('map', {
-                 center: new naver.maps.LatLng(37.5665, 126.9780), // Initial center in Seoul
-                 zoom: 15
-             });
+        #locationBtn::before {
+            content: '';
+            display: block;
+            width: 20px;
+            height: 20px;
+            background-image: url('https://navermaps.github.io/maps.js.ncp/docs/img/example/location.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
 
-             if (window.Unity && typeof window.Unity.call === 'function') {
-                 window.Unity.call("MapReady");
-             }
-         }
+        #closeBtn::before {
+            content: '×'; /* Close symbol */
+            font-size: 18px;
+            color: black;
+        }
+    </style>
+</head>
+<body style="margin:0;padding:0;overflow:hidden;">
 
-         document.getElementById("locationBtn").addEventListener("click", function () {
-             if (navigator.geolocation) {
-                 navigator.geolocation.getCurrentPosition(function (position) {
-                     const lat = position.coords.latitude;
-                     const lng = position.coords.longitude;
+    <div id="map"></div>
+    <button id="locationBtn" title="My Location"></button>
+    <button id="closeBtn" title="Close WebView"></button>
 
-                     const userLocation = new naver.maps.LatLng(lat, lng);
-                     map.setCenter(userLocation); // Move camera to user's location
-                     new naver.maps.Marker({
-                         position: userLocation,
-                         map: map,
-                         title: "You are here!"
-                     });
+    <script>
+        let map;
 
-                     // Optional: Send location to Unity
-                     if (window.Unity && typeof window.Unity.call === 'function') {
-                         window.Unity.call(`Location:<span class="math-inline">\{lat\},</span>{lng}`);
-                     }
+        function initMap() {
+            map = new naver.maps.Map('map', {
+                center: new naver.maps.LatLng(37.5665, 126.9780),
+                zoom: 15
+            });
 
-                 }, function (error) {
-                     alert("Failed to get location: " + error.message);
-                 });
-             } else {
-                 alert("Geolocation is not supported by this browser.");
-             }
-         });
-     </script>
- </body>
- </html>
+            if (window.Unity && typeof window.Unity.call === 'function') {
+                window.Unity.call("MapReady");
+            }
+        }
+
+        document.getElementById("locationBtn").addEventListener("click", function () {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function (position) {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+
+                    const userLocation = new naver.maps.LatLng(lat, lng);
+                    map.setCenter(userLocation);
+                    new naver.maps.Marker({
+                        position: userLocation,
+                        map: map,
+                        title: "You are here!"
+                    });
+
+                    if (window.Unity && typeof window.Unity.call === 'function') {
+                        window.Unity.call(`Location:${lat},${lng}`);
+                    }
+
+                }, function (error) {
+                    alert("Failed to get location: " + error.message);
+                });
+            } else {
+                alert("Geolocation is not supported by this browser.");
+            }
+        });
+
+        document.getElementById("closeBtn").addEventListener("click", function () {
+            if (window.Unity && typeof window.Unity.call === 'function') {
+                Unity.call('closeWebView');
+            }
+        });
+    </script>
+</body>
+</html>
