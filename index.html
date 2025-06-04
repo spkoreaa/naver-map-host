@@ -15,8 +15,8 @@
 
         #locationBtn, #closeBtn {
             position: absolute;
-            width: 50px;
-            height: 50px;
+            width: 50px; /* Increased size */
+            height: 50px; /* Increased size */
             padding: 0;
             font-size: 0;
             background-color: white;
@@ -30,13 +30,13 @@
         }
 
         #locationBtn {
-            bottom: 60px;
-            right: 10px;
+            bottom: 80px; /* Positioned at bottom right, a bit higher */
+            right: 20px;
         }
 
         #closeBtn {
-            top: 10px;
-            right: 10px;
+            top: 20px; /* Positioned at top right */
+            right: 20px;
         }
 
         #locationBtn::before {
@@ -45,7 +45,7 @@
             width: 100%;
             height: 100%;
             border-radius: 50%;
-            border: 2px solid red;
+            border: 1px solid red;
             box-sizing: border-box;
             position: absolute;
             top: 0;
@@ -56,38 +56,38 @@
             content: '';
             display: block;
             position: absolute;
-            width: 10px;
-            height: 10px;
+            width: 10px; /* Adjusted for bigger button */
+            height: 10px; /* Adjusted for bigger button */
             background-color: red;
             border-radius: 50%;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
             box-shadow:
-                0 -14px 0 -10px red,
-                0 14px 0 -10px red,
-                -14px 0 0 -10px red,
-                14px 0 0 -10px red;
+                0 -16px 0 -10px red, /* Adjusted for bigger button */
+                0 16px 0 -10px red,  /* Adjusted for bigger button */
+                -16px 0 0 -10px red, /* Adjusted for bigger button */
+                16px 0 0 -10px red;  /* Adjusted for bigger button */
         }
 
         #closeBtn::before {
             content: '×';
-            font-size: 24px;
+            font-size: 30px; /* Increased font size for bigger button */
             color: black;
         }
 
         #debugInfo {
             position: absolute;
-            top: 10px;
-            left: 10px;
+            top: 20px; /* Positioned at top left */
+            left: 20px;
             background-color: rgba(255, 255, 255, 0.8);
-            padding: 12px;
+            padding: 8px;
             border-radius: 5px;
             z-index: 1000;
             font-family: monospace;
-            font-size: 16px;
+            font-size: 14px;
             color: #333;
-            max-width: 250px;
+            max-width: 200px;
             word-wrap: break-word;
         }
     </style>
@@ -110,6 +110,8 @@
             });
 
             debugInfoDiv = document.getElementById('debugInfo');
+
+            setAnchorLocation(37.5665, 126.9780, "https://firebasestorage.googleapis.com/v0/b/ar-navigation-3dc71.firebasestorage.app/o/bangc.png?alt=media&token=46eb8756-e249-488c-97e1-104e008717c8"); // Set default anchor
 
             if (window.Unity && typeof window.Unity.call === 'function') {
                 window.Unity.call("MapReady");
@@ -152,88 +154,42 @@
             }
         }
 
-        function setAnchorLocation(lat, lng, url, iconSizeX = 50, iconSizeY = 50, tooltip = "Anchor Marker") {
-            console.log("setAnchorLocation called with:", lat, lng, url, iconSizeX, iconSizeY, tooltip);
+function setAnchorLocation(lat, lng, url) {
+    console.log("setAnchorLocation called with:", lat, lng, url);
 
-            const anchorLocation = new naver.maps.LatLng(lat, lng);
+    const anchorLocation = new naver.maps.LatLng(lat, lng);
 
-            // Create the marker
-            const marker = new naver.maps.Marker({
-                position: anchorLocation,
-                map: map,
-                icon: {
-                    url: url,
-                    scaledSize: new naver.maps.Size(iconSizeX, iconSizeY),
-                    origin: new naver.maps.Point(0, 0),
-                    anchor: new naver.maps.Point(iconSizeX / 2, iconSizeY / 2)
-                },
-                title: tooltip
-            });
+    const marker = new naver.maps.Marker({
+        position: anchorLocation,
+        map: map,
+        icon: {
+            url: url,
+            scaledSize: new naver.maps.Size(50, 50),  // size of the icon
+            origin: new naver.maps.Point(0, 0),
+            anchor: new naver.maps.Point(25, 25)      // center the icon on the location
+        },
+        title: "Anchor Marker"
+    });
 
-            // Custom label overlay
-            const LabelOverlay = function (position, text) {
-                this._element = null;
-                this._position = position;
-                this._text = text;
-            };
+    const infowindow = new naver.maps.InfoWindow({
+        content: '<div style="padding:5px; font-size:14px;">Anchor Position</div>',
+        pixelOffset: new naver.maps.Point(0, -25)
+    });
 
-            LabelOverlay.prototype = new naver.maps.OverlayView();
-            LabelOverlay.prototype.constructor = LabelOverlay;
-
-            LabelOverlay.prototype.onAdd = function () {
-                const div = document.createElement('div');
-                div.style.position = 'absolute';
-                div.style.padding = '2px 6px';
-                div.style.background = 'rgba(0, 0, 0, 0.6)';
-                div.style.color = '#fff';
-                div.style.fontSize = '12px';
-                div.style.borderRadius = '4px';
-                div.style.whiteSpace = 'nowrap';
-                div.innerText = this._text;
-
-                this._element = div;
-                const overlayLayer = this.getPanes().floatPane;
-                overlayLayer.appendChild(div);
-            };
-
-            LabelOverlay.prototype.draw = function () {
-                const projection = this.getProjection();
-                const position = projection.fromCoordToOffset(this._position);
-
-                if (this._element) {
-                    this._element.style.left = `${position.x - this._element.offsetWidth / 2}px`;
-                    this._element.style.top = `${position.y - iconSizeY - 10}px`;
-                }
-            };
-
-            LabelOverlay.prototype.onRemove = function () {
-                if (this._element) {
-                    this._element.parentNode.removeChild(this._element);
-                    this._element = null;
-                }
-            };
-
-            const label = new LabelOverlay(anchorLocation, tooltip);
-            label.setMap(map);
-
-            // Optional info window
-            const infowindow = new naver.maps.InfoWindow({
-                content: `<div style="padding:5px; font-size:14px;">${tooltip}</div>`,
-                pixelOffset: new naver.maps.Point(0, -iconSizeY / 2)
-            });
-
-            naver.maps.Event.addListener(marker, "click", function () {
-                if (infowindow.getMap()) {
-                    infowindow.close();
-                } else {
-                    infowindow.open(map, marker);
-                }
-            });
-
-            if (debugInfoDiv) {
-                debugInfoDiv.innerText = `Anchor Location:\nLat: ${lat.toFixed(6)}\nLng: ${lng.toFixed(6)}\nIcon: ${url}`;
-            }
+    naver.maps.Event.addListener(marker, "click", function () {
+        if (infowindow.getMap()) {
+            infowindow.close();
+        } else {
+            infowindow.open(map, marker);
         }
+    });
+
+    infowindow.open(map, marker);
+
+    if (debugInfoDiv) {
+        debugInfoDiv.innerText = `Anchor Location:\nLat: ${lat.toFixed(6)}\nLng: ${lng.toFixed(6)}\nIcon: ${url}`;
+    }
+}
     </script>
 </body>
 </html>
