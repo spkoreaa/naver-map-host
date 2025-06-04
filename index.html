@@ -102,6 +102,7 @@
     <script>
         let map;
         let debugInfoDiv;
+        let markers = []; // To keep track of created markers and their infowindows
 
         function initMap() {
             map = new naver.maps.Map('map', {
@@ -111,7 +112,10 @@
 
             debugInfoDiv = document.getElementById('debugInfo');
 
-            setAnchorLocation(37.5665, 126.9780, "https://firebasestorage.googleapis.com/v0/b/ar-navigation-3dc71.firebasestorage.app/o/bangc.png?alt=media&token=46eb8756-e249-488c-97e1-104e008717c8"); // Set default anchor
+            // Example call with new parameters
+            setAnchorLocation(37.5665, 126.9780, "https://firebasestorage.googleapis.com/v0/b/ar-navigation-3dc71.firebasestorage.app/o/bangc.png?alt=media&token=46eb8756-e249-488c-97e1-104e008717c8", 60, 60, "My Awesome Anchor!");
+            setAnchorLocation(37.5670, 126.9790, "https://firebasestorage.googleapis.com/v0/b/ar-navigation-3dc71.firebasestorage.app/o/bangc.png?alt=media&token=46eb8756-e249-488c-97e1-104e008717c8", 40, 40, "Another Spot");
+
 
             if (window.Unity && typeof window.Unity.call === 'function') {
                 window.Unity.call("MapReady");
@@ -154,42 +158,45 @@
             }
         }
 
-function setAnchorLocation(lat, lng, url) {
-    console.log("setAnchorLocation called with:", lat, lng, url);
+        function setAnchorLocation(lat, lng, url, iconSizeX = 50, iconSizeY = 50, tooltip = "Anchor Position") {
+            console.log("setAnchorLocation called with:", lat, lng, url, iconSizeX, iconSizeY, tooltip);
 
-    const anchorLocation = new naver.maps.LatLng(lat, lng);
+            const anchorLocation = new naver.maps.LatLng(lat, lng);
 
-    const marker = new naver.maps.Marker({
-        position: anchorLocation,
-        map: map,
-        icon: {
-            url: url,
-            scaledSize: new naver.maps.Size(50, 50),  // size of the icon
-            origin: new naver.maps.Point(0, 0),
-            anchor: new naver.maps.Point(25, 25)      // center the icon on the location
-        },
-        title: "Anchor Marker"
-    });
+            const marker = new naver.maps.Marker({
+                position: anchorLocation,
+                map: map,
+                icon: {
+                    url: url,
+                    scaledSize: new naver.maps.Size(iconSizeX, iconSizeY), // Dynamic size
+                    origin: new naver.maps.Point(0, 0),
+                    anchor: new naver.maps.Point(iconSizeX / 2, iconSizeY / 2) // Center the icon based on dynamic size
+                },
+                title: tooltip // Set marker title dynamically
+            });
 
-    const infowindow = new naver.maps.InfoWindow({
-        content: '<div style="padding:5px; font-size:14px;">Anchor Position</div>',
-        pixelOffset: new naver.maps.Point(0, -25)
-    });
+            const infowindow = new naver.maps.InfoWindow({
+                content: `<div style="padding:5px; font-size:14px;">${tooltip}</div>`, // Set infowindow content dynamically
+                pixelOffset: new naver.maps.Point(0, -iconSizeY / 2) // Adjust offset based on icon height
+            });
 
-    naver.maps.Event.addListener(marker, "click", function () {
-        if (infowindow.getMap()) {
-            infowindow.close();
-        } else {
-            infowindow.open(map, marker);
+            naver.maps.Event.addListener(marker, "click", function () {
+                // Close any currently open infowindows before opening a new one
+                markers.forEach(item => {
+                    if (item.infowindow.getMap()) {
+                        item.infowindow.close();
+                    }
+                });
+                infowindow.open(map, marker);
+            });
+
+            // Store the marker and its infowindow
+            markers.push({ marker: marker, infowindow: infowindow });
+
+            if (debugInfoDiv) {
+                debugInfoDiv.innerText = `Anchor Location:\nLat: ${lat.toFixed(6)}\nLng: ${lng.toFixed(6)}\nIcon: ${url}\nSize: ${iconSizeX}x${iconSizeY}\nTooltip: ${tooltip}`;
+            }
         }
-    });
-
-    infowindow.open(map, marker);
-
-    if (debugInfoDiv) {
-        debugInfoDiv.innerText = `Anchor Location:\nLat: ${lat.toFixed(6)}\nLng: ${lng.toFixed(6)}\nIcon: ${url}`;
-    }
-}
     </script>
 </body>
 </html>
